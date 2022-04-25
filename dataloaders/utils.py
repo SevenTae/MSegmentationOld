@@ -12,7 +12,7 @@ def decode_seg_map_sequence(label_masks, dataset='pascal'):
 
 
 def decode_segmap(label_mask, dataset, plot=False):
-    """Decode segmentation class labels into a color image
+    """Decode segmentation class labelss into a color image
     Args:
         label_mask (np.ndarray): an (M,N) array of integer values denoting
           the class label at each spatial location.
@@ -27,6 +27,9 @@ def decode_segmap(label_mask, dataset, plot=False):
     elif dataset == 'cityscapes':
         n_classes = 19
         label_colours = get_cityscapes_labels()
+    elif dataset == 'customer':
+        n_classes = 2
+        label_colours = get_customer_labels()
     else:
         raise NotImplementedError
 
@@ -100,3 +103,6 @@ def get_pascal_labels():
                        [64, 0, 128], [192, 0, 128], [64, 128, 128], [192, 128, 128],
                        [0, 64, 0], [128, 64, 0], [0, 192, 0], [128, 192, 0],
                        [0, 64, 128]])
+
+def get_customer_labels():
+    return np.asarray([[0, 0, 0], [255,255,255]])

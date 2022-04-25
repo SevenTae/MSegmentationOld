@@ -28,6 +28,27 @@ class Normalize(object):  #归一化处理
         return {'image': img,
                 'label': mask}
 
+
+class Normalize_simple(object):  #归一化处理
+    """Normalize a tensor image with/255
+    Args:
+
+    """
+    def __init__(self,):
+        self.num = 255.0
+
+    def __call__(self, sample):
+        img = sample['image']
+        mask = sample['label']
+        img = np.array(img).astype(np.float32)
+        mask = np.array(mask).astype(np.float32)
+        img /= 255.0
+
+
+        return {'image': img,
+                'label': mask}
+
+
 class Resize(object):
     '''太大了进不去'''
     def __init__(self, resizeshape=(1024,512)):

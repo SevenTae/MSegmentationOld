@@ -15,7 +15,7 @@ def evaluate(net, dataloader, device):
     # iterate over the validation set
     for batch in tqdm(dataloader, total=num_val_batches, desc='Validation round', unit='batch', leave=False):
         image, mask_true = batch['image'], batch['label']
-        # move images and labels to correct device and type
+        # move images and labelss to correct device and type
         image = image.to(device=device, dtype=torch.float32)
         mask_true = mask_true.to(device=device, dtype=torch.long)
         mask_true = F.one_hot(mask_true, net.n_classes).permute(0, 3, 1, 2).float()
@@ -57,7 +57,7 @@ def evaluatemiou(net, dataloader, device, num_classes=20):
     for batch in tqdm(dataloader, total=num_val_batches, desc='Validation miou round', unit='batch',
                       leave=False):  # 迭代玩所有的验证集累积所有batch的miou 最后除以验证集的batch的长度
         image, mask_true = batch['image'], batch['label']
-        # move images and labels to correct device and type
+        # move images and labelss to correct device and type
         image = image.to(device=device, dtype=torch.float32)
         mask_true = mask_true.to(device=device, dtype=torch.long)
 
@@ -101,7 +101,7 @@ def evaluateloss(net, dataloader, device, ignore_index=100):
                       leave=False):  # 迭代完所有的验证集，输出整个验证集的loss
 
         image, mask_true = batch['image'], batch['label']
-        # move images and labels to correct device and type
+        # move images and labelss to correct device and type
         image = image.to(device=device, dtype=torch.float32)
         mask_true = mask_true.to(device=device, dtype=torch.long)
 

@@ -14,7 +14,7 @@ def evaluatemiou(net, dataloader, device, num_classes=20):
     for batch in tqdm(dataloader, total=num_val_batches, desc='Validation miou round', unit='batch',
                       leave=False):  # 迭代玩所有的验证集累积所有batch的miou 最后除以验证集的batch的长度
         image, mask_true = batch['image'], batch['label']
-        # move images and labels to correct device and type
+        # move images and labelss to correct device and type
         image = image.to(device=device, dtype=torch.float32)
         mask_true = mask_true.to(device=device, dtype=torch.long)
 
@@ -55,7 +55,7 @@ def evaluateiou(net, dataloader, device, num_classes=20):
     for batch in tqdm(dataloader, total=num_val_batches, desc='Validation miou round', unit='batch',
                       leave=False):  # 迭代玩所有的验证集累积所有batch的miou 最后除以验证集的batch的长度
         image, mask_true = batch['image'], batch['label']
-        # move images and labels to correct device and type
+        # move images and labelss to correct device and type
         image = image.to(device=device, dtype=torch.float32)
         mask_true = mask_true.to(device=device, dtype=torch.long)
 

@@ -19,7 +19,7 @@ class SBDSegmentation(data.Dataset):
                  split='train',
                  ):
         """
-        :param base_dir: path to VOC dataset directory
+        :param base_dir: path to VOCdevkit dataset directory
         :param split: train/val
         :param transform: transform to apply
         """
