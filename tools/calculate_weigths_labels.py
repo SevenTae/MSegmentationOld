@@ -5,6 +5,7 @@ from dataloaders.mypath import Path
 
 '''
 cr：http://t.csdn.cn/C9pWg
+计算类别权重，前提是你的数据个是是example的格式
 '''
 def calculate_weigths_labels( dataloader, num_classes):
     # Create an instance from the data loader
@@ -31,20 +32,20 @@ def calculate_weigths_labels( dataloader, num_classes):
 
     return ret
 
-
-from torch.utils.data import DataLoader
-import matplotlib.pyplot as plt
-import argparse
-parser = argparse.ArgumentParser()
-from dataloaders.datasets.customer import CustomerSegmentation
-args = parser.parse_args()
-args.base_size = 512#这玩意干啥的
-args.crop_size = 512
-args.resize=(999,960)
-
-customer_train = CustomerSegmentation(args, split='train')
-print(len(customer_train))
-dataloader = DataLoader(customer_train, batch_size=1, shuffle=False)
-num_classes = 2
-re = calculate_weigths_labels(dataloader,num_classes)
-print(re)
+#EXample
+# from torch.utils.data import DataLoader
+# import matplotlib.pyplot as plt
+# import argparse
+# parser = argparse.ArgumentParser()
+# from dataloaders.datasets.customer import CustomerSegmentation
+# args = parser.parse_args()
+# args.base_size = 512#这玩意干啥的
+# args.crop_size = 512
+# args.resize=(999,960)
+#
+# customer_train = CustomerSegmentation(args, split='train')
+# print(len(customer_train))
+# dataloader = DataLoader(customer_train, batch_size=1, shuffle=False)
+# num_classes = 2
+# re = calculate_weigths_labels(dataloader,num_classes)
+# print(re)

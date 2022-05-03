@@ -1,3 +1,4 @@
+'''现在这个train只是个参考模板，具体的模型或者训练方式去train文件夹里边比这这个写'''
 import argparse
 import logging
 from pathlib import Path
@@ -7,9 +8,7 @@ import wandb
 from torch import optim
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-
-from utils.evaluate_train import evaluatemiou,evaluateloss
-
+from utils.evaluate_train import evaluatemiou,evaluateloss,criterion_CD,evaluate,evaluate_CDloss
 from nets.unet.unet_model import weights_init
 from nets.unet.unet_model import UNet
 dir_img = Path('./data/imgs/')
@@ -89,7 +88,9 @@ def train_net(net,
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=2)  # goal: maximize Dice score  #当网络的评价指标不在提升的时候，可以通过降低网络的学习率来提高网络性能。所使用的类
     grad_scaler = torch.cuda.amp.GradScaler(enabled=amp)
     #amp：Automatic mixed precision，自动混合精度，可以在神经网络推理过程中，针对不同的层，采用不同的数据精度进行计算，从而实现节省显存和加快速度的目的。这里就不适用了，以后再看
-    criterion = nn.CrossEntropyLoss()
+
+
+
     global_step = 0  #记录迭代的次数
 
     # 5. Begin training
@@ -104,10 +105,10 @@ def train_net(net,
                 true_masks = batch['label']
                 # print("让我看看", np.unique(true_masks.numpy()))
 
-                # assert images.shape[1] == net.n_channels, \  #为了防止通道数不是3的情况  .先不要他了
-                #     f'Network has been defined with {net.n_channels} input channels, ' \
-                #     f'but loaded images have {images.shape[1]} channels. Please check that ' \
-                #     'the images are loaded correctly.'
+                assert images.shape[1] == net.n_channels, \
+                    f'Network has been defined with {net.n_channels} input channels, ' \
+                    f'but loaded images have {images.shape[1]} channels. Please check that ' \
+                    'the images are loaded correctly.'
 
                 images = images.to(device=device, dtype=torch.float32)
                 true_masks = true_masks.to(device=device, dtype=torch.long)
@@ -115,7 +116,10 @@ def train_net(net,
 
                 with torch.cuda.amp.autocast(enabled=amp):
                     masks_pred = net(images)
-                    loss = criterion(masks_pred,true_masks)
+
+                    loss = criterion_CD(masks_pred,true_masks,num_classes=2,dice=True)
+
+
                     #
                     '''1.loss 2.梯度清零，3.反向传播。backward 4optomizer更新.'''
 
@@ -151,9 +155,10 @@ def train_net(net,
                             histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
 
                         val_score = evaluatemiou(net, val_loader, device,args.classes)
-                        val_loss =evaluateloss(net,val_loader,device)
-                        scheduler.step(val_score)  #学习率是在这里监控miou的 ,#这是用那个监督策略的
-                        # scheduler.step() #这个地方是按照迭代来调整学习率的
+                        # val_loss =evaluateloss(net,val_loader,device)
+                        val_loss= evaluate_CDloss(net,val_loader,device,dice=True)
+                        # scheduler.step(val_score)  #学习率是在这里监控miou的 ,#这是用那个监督策略的
+                        scheduler.step() #这个地方是按照迭代来调整学习率的
 
                         logging.info('Validation miou score: {}'.format(val_score))
                         experiment.log({
@@ -206,10 +211,10 @@ if __name__ == '__main__':
     # n_classes is the number of probabilities you want to get per pixel
     net = UNet(n_channels=3, n_classes=args.classes, bilinear=args.bilinear)
 
-    # logging.info(f'Network:\n'
-    #              f'\t{net.n_channels} input channels\n'
-    #              f'\t{net.n_classes} output channels (classes)\n'
-    #              f'\t{"Bilinear" if net.bilinear else "Transposed conv"} upscaling')
+    logging.info(f'Network:\n'
+                 f'\t{net.n_channels} input channels\n'
+                 f'\t{net.n_classes} output channels (classes)\n'
+                 f'\t{"Bilinear" if net.bilinear else "Transposed conv"} upscaling')
 
     if args.load: #有预训练加载预训练
         net.load_state_dict(torch.load(args.load, map_location=device))

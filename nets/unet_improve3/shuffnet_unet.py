@@ -1,26 +1,38 @@
+'''以整个shuffnet为主干'''
+from nets.unet_improve3.unet_parts import *
+import torch
+import torch.nn as nn
+from nets.unet_improve3.shuffnetv2 import shufflenet_v2_x0_5
+
+import  numpy as np
 """ Full assembly of the parts to form the complete network """
+'''
+描述: 原unet第一层不变还是用doble卷2，3，4，5换成shufnet2 s=2的模块
 
-from nets.unet.unet_parts import *
-
-
-class UNet(nn.Module):
+'''
+#第一种写法
+class shuff_UNet(nn.Module):
     def __init__(self, n_channels, n_classes, bilinear=False):
-        super(UNet, self).__init__()
+        super(shuff_UNet, self).__init__()
         self.n_channels = n_channels
         self.n_classes = n_classes
         self.bilinear = bilinear
 
-        self.inc = DoubleConv(n_channels, 64)
-        self.down1 = Down(64, 128)
-        self.down2 = Down(128, 256)
-        self.down3 = Down(256, 512)
+        #[64, 128, 256, 512, 1024]
+        self.inc = DoubleConv(n_channels, 64)#输出通道64
+
+        self.down1 = InvertedResidual(input_c=64,output_c=128,stride=2)#128
+        self.down2 =InvertedResidual(input_c=128,output_c=256,stride=2)#96
+        self.down3 =InvertedResidual(input_c=256,output_c=512,stride=2)#192
         factor = 2 if bilinear else 1#如果用一般的双线性插值的话就是2 用转置卷积的话就是1
-        self.down4 = Down(512, 1024 // factor)
-        self.up1 = Up(1024, 512 // factor, bilinear)
-        self.up2 = Up(512, 256 // factor, bilinear)
-        self.up3 = Up(256, 128 // factor, bilinear)
-        self.up4 = Up(128, 64, bilinear)
+        self.down4 = InvertedResidual(input_c=512,output_c=1024,stride=2) #1024
+
+        self.up1 = Up(1024, 512, bilinear,first_up=True)
+        self.up2 = Up(512, 256, bilinear,first_up=False)
+        self.up3 = Up(256, 128, bilinear,first_up=False)
+        self.up4 = Up(128, 64, bilinear,first_up=False)
         self.outc = OutConv(64, n_classes)
+
 
     def forward(self, x):
         x1 = self.inc(x)
@@ -57,4 +69,11 @@ def weights_init(net, init_type='normal', init_gain=0.02):
             torch.nn.init.constant_(m.bias.data, 0.0)
     print('initialize network with %s type' % init_type)
     net.apply(init_func)
+
+
+
+inp = torch.randn([1,3,512,512])
+mod= shuff_UNet(n_channels=3,n_classes=19)
+out= mod(inp)
+print(out.shape)
 

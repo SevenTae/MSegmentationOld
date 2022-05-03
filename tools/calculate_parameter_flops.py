@@ -6,37 +6,29 @@
 
 '''
 import torch
-
 import torch
 from torchsummary import summary
-
 import torch
 from torch import  nn
-from nets.unet_improve1 import unet_model
-
-
-# if __name__ == "__main__":
-#     # 需要使用device来指定网络在GPU还是CPU运行
-#     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-#     model = unet_model.SEAttention(channel=64).to(device)
-#     # model= unet_model.ECAAttention(channel=64)
-#     # model= unet_model.cbam_block(channel=64)
-#     summary(model, input_size=(64, 32, 32))
-
-
-
+from nets.unet.unet_model import UNet
+from nets.unet_improve3.shuffnet_unet import shuff_UNet
 import torch
 from torchsummary import summary
 from thop import profile
 
-
+'''计算网络的参数量和计算量'''
 
 if __name__ == "__main__":
     # 需要使用device来指定网络在GPU还是CPU运行
     device  = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    model = unet_model.CBAM_ECAAttention(channel=64).to(device)
-    input = torch.randn(1, 64, 32, 32).to(device)
+    model =shuff_UNet(n_channels=3,n_classes=19).to(device)
+    input = torch.randn(1, 3, 512, 512).to(device)
     flops, params = profile(model, inputs=(input,))
     print("FLOPS:",flops)
     print("params:",params)
+
+    print("Total FLOPS: %.2fM" % (flops/1e6))
+    print("Total FLOPS: %.2fM" % (params/1e6))
+
+    # torch.save(model.state_dict(),"test.pth")

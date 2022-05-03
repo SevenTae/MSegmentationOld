@@ -2,7 +2,7 @@ from torchvision.datasets import ImageFolder
 import torchvision
 import torch
 import numpy as np
-
+'''数据集格式ImageFolder'''
 def getStat(train_data):
     '''
     Compute mean and variance for training data

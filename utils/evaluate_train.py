@@ -4,7 +4,7 @@ from tqdm import tqdm
 from torch import nn
 from utils.dice_score import multiclass_dice_coeff, dice_coeff
 from utils.miou import SegmentationMetric
-
+from utils.dice_loss2 import  build_target,dice_coeff,dice_loss
 
 #这个evalue是原版
 def evaluate(net, dataloader, device):
@@ -31,7 +31,6 @@ def evaluate(net, dataloader, device):
                 dice_score += dice_coeff(mask_pred, mask_true, reduce_batch_first=False)
             else:
 
-                SegmentationMetric.meanIntersectionOverUnion()
                 mask_pred = F.one_hot(mask_pred.argmax(dim=1), net.n_classes).permute(0, 3, 1, 2).float()
                 # compute the Dice score, ignoring background
                 dice_score += multiclass_dice_coeff(mask_pred[:, 1:, ...], mask_true[:, 1:, ...],
@@ -45,7 +44,8 @@ def evaluate(net, dataloader, device):
     return dice_score / num_val_batches
 
 
-'''上边这个evla貌似不太行的样子。得自己写一个miou的评估'''
+'''上边这个evalue只是计算测试时候的dice的'''
+
 
 
 def evaluatemiou(net, dataloader, device, num_classes=20):
@@ -128,5 +128,32 @@ def evaluateloss(net, dataloader, device, ignore_index=100):
     return val_loss / num_val_batches  # 然后再区batch的平均
 
 
+#dice和交叉熵是否连用
+def evaluate_CDloss(net, dataloader, device,dice = True, ignore_index=100):
+
+  loss = 0.0
+  if dice:
+      loss = evaluate_CDloss()+evaluate(net,dataloader,device,ignore_index)
+  else:
+      loss = evaluateloss(net,dataloader,device,ignore_index)
+
+
+
+#交叉熵和dice一起用
+#只是train的时候
+def criterion_CD(inputs, target, loss_weight=None, num_classes: int = 2, dice: bool = True, ignore_index: int = -100):
+    losses = {}
+    for name, x in inputs.items():
+        # 忽略target中值为255的像素，255的像素是目标边缘或者padding填充
+        loss = nn.functional.cross_entropy(x, target, ignore_index=ignore_index, weight=loss_weight)
+        if dice is True:
+            dice_target = build_target(target, num_classes, ignore_index)
+            loss += dice_loss(x, dice_target, multiclass=True, ignore_index=ignore_index)
+        losses[name] = loss
+
+    if len(losses) == 1:
+        return losses['out']
+
+    return losses['out'] + 0.5 * losses['aux']
 
 
