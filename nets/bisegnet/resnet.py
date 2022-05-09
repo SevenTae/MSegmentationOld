@@ -83,6 +83,7 @@ class Resnet18(nn.Module):
         return feat8, feat16, feat32
 
     def init_weight(self):
+        print("re18的预训练权重已经加载")
         state_dict = modelzoo.load_url(resnet18_url)
         self_state_dict = self.state_dict()
         for k, v in state_dict.items():

@@ -49,7 +49,9 @@ def evaluate(net, dataloader, device):
 
 
 def evaluatemiou(net, dataloader, device, num_classes=20):
+    net.aux_mode = 'eval'#for bisegnet 专属
     net.eval()
+
     num_val_batches = len(dataloader)
     miou_score = 0
 
@@ -84,6 +86,7 @@ def evaluatemiou(net, dataloader, device, num_classes=20):
                 miou_score += mIoU  # batch  的miou累计
 
     net.train()
+    net.aux_mode = 'train' #for bisegnet 专属
 
     # Fixes a potential division by zero error
     if num_val_batches == 0:
@@ -93,6 +96,7 @@ def evaluatemiou(net, dataloader, device, num_classes=20):
 
 
 def evaluateloss(net, dataloader, device, ignore_index=100):
+    net.aux_mode = 'eval' #biseg的专属
     net.eval()
     num_val_batches = len(dataloader)
     val_loss = 0
@@ -120,6 +124,7 @@ def evaluateloss(net, dataloader, device, ignore_index=100):
         val_loss += loss.item()
 
     net.train()
+    net.aux_mode = 'train' #bseg的专属
 
     # Fixes a potential division by zero error
     if num_val_batches == 0:

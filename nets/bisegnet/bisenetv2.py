@@ -431,8 +431,9 @@ if __name__ == "__main__":
     #  feat = segment(x)[0]
     #  print(feat.size())
     #
-    x = torch.randn(16, 3, 1024, 2048)
-    model = BiSeNetV2(n_classes=19)
+    x = torch.randn(1, 3, 512, 512)
+    model = BiSeNetV2(n_classes=19,aux_mode='eval')
+    model.eval()
     outs = model(x)
     for out in outs:
         print(out.size())

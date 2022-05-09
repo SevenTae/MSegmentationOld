@@ -61,9 +61,9 @@ def weights_init(net, init_type='normal', init_gain=0.02):
     print('initialize network with %s type' % init_type)
     net.apply(init_func)
 
-
-inpu = torch.randn(1,3,512,512)
-m  = UNet(n_channels=3,n_classes=19)
-
-out= m(inpu)
-print(out.shape)
+#
+# inpu = torch.randn(1,3,512,512)
+# m  = UNet(n_channels=3,n_classes=19)
+#
+# out= m(inpu)
+# print(out.shape)

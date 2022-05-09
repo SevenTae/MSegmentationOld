@@ -169,7 +169,7 @@ class RandomScaleCrop(object):
         img = sample['image']
         mask = sample['label']
         # random scale (short edge)
-        short_size = random.randint(int(self.base_size * 0.5), int(self.base_size * 2.0))#随机尺度！！！从原图的0.5-2.0随机缩放
+        short_size = random.randint(int(self.base_size * 0.5), int(self.base_size * 1.0))#随机尺度！！！从原图的0.5-1.0随机缩放
         w, h = img.size
         if h > w:
             ow = short_size
@@ -223,7 +223,7 @@ class FixScaleCrop(object):#固定尺寸裁剪中心裁剪，从标标准准的�
         return {'image': img,
                 'label': mask}
 
-class FixScaleCropMy(object):  #中心裁剪裁剪出来的那一块再填充成原图大小
+class RandomFixScaleCropMy(object):  #随机中心裁剪裁剪出来的那一块再填充成原图大小
     def __init__(self, crop_size,fill=0):
         self.crop_size = crop_size
         self.fill=fill
@@ -234,19 +234,23 @@ class FixScaleCropMy(object):  #中心裁剪裁剪出来的那一块再填充成
         w, h = img.size
        #前提cropsize要小于resize的大小
         # center crop
+        if random.random() < 0.5:
+            x1 = int(round((w - self.crop_size) / 2.))
+            y1 = int(round((h - self.crop_size) / 2.))
+            img = img.crop((x1, y1, x1 + self.crop_size, y1 + self.crop_size))  # 坐上右下点的坐标，然后呢 裁剪完成之后不pading成统一的尺寸了吗
+            mask = mask.crop((x1, y1, x1 + self.crop_size, y1 + self.crop_size))
+            #裁剪玩成之后再补回原图（缩放后的原图）大小 #比如原图2048 1024 缩放后的原图是1024 512
+            padw=w-self.crop_size-x1
+            padh=h-self.crop_size-y1
+            img = ImageOps.expand(img, border=(x1, y1, padw, padh), fill=0)  # 左，上，右，下
+            mask = ImageOps.expand(mask, border=(x1, y1, padw, padh), fill=self.fill)
 
-        x1 = int(round((w - self.crop_size) / 2.))
-        y1 = int(round((h - self.crop_size) / 2.))
-        img = img.crop((x1, y1, x1 + self.crop_size, y1 + self.crop_size))  # 坐上右下点的坐标，然后呢 裁剪完成之后不pading成统一的尺寸了吗
-        mask = mask.crop((x1, y1, x1 + self.crop_size, y1 + self.crop_size))
-        #裁剪玩成之后再补回原图（缩放后的原图）大小 #比如原图2048 1024 缩放后的原图是1024 512
-        padw=w-self.crop_size-x1
-        padh=h-self.crop_size-y1
-        img = ImageOps.expand(img, border=(x1, y1, padw, padh), fill=0)  # 左，上，右，下
-        mask = ImageOps.expand(mask, border=(x1, y1, padw, padh), fill=self.fill)
+            return {'image': img,
+                    'label': mask}
+        else:
 
-        return {'image': img,
-                'label': mask}
+            return {'image': img,
+                    'label': mask}
 
 
 #缩放尺寸原图2048*1024太大了

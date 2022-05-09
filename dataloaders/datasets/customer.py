@@ -13,12 +13,14 @@ from dataloaders import custom_transforms as tr
 class CustomerSegmentation(data.Dataset):
     NUM_CLASSES = 2
 
-    def __init__(self, args, root=Path.db_root_dir('customer'), split="train"):
+    def __init__(self, args, root=Path.db_root_dir('customer'), split="train",isAugTrain =False):
 
         self.root = root
         self.split = split
         self.args = args
+        self.isAugTrain =isAugTrain#是否使用数据增强
         self.files = {}
+
 
         self.images_base = os.path.join(self.root, 'images/', self.split) #
         self.annotations_base = os.path.join(self.root, 'annotations/', self.split) #
@@ -50,7 +52,10 @@ class CustomerSegmentation(data.Dataset):
         sample = {'image': _img, 'label': _target}
          #进行数据增强
         if self.split == 'train':
-            return self.transform_tr(sample)
+            if self.isAugTrain == True:
+                return self.AugTrain(sample)
+            else:
+                return self.transform_tr(sample)
         elif self.split == 'val':
             return self.transform_val(sample)
         elif self.split == 'test':
@@ -67,34 +72,34 @@ class CustomerSegmentation(data.Dataset):
     #对训练集数据增强  这个数据增强有个问题 ，就是我的图片都会经过裁剪，最后网络输入的大小都是裁剪的大小。不是那种随机数据增强，
     def transform_tr(self, sample):
         composed_transforms = transforms.Compose([
-            tr.Resize((512,256)),  #先缩放要不然原图太大了进不去
-            # tr.FixScaleCropMy(crop_size=self.args.crop_size,fill=255),
-            # tr.RandomHorizontalFlip(),
+            tr.Resize(self.args.resize),  #先缩放要不然原图太大了进不去
+            tr.Normalize_simple(),
+            tr.ToTensor()])
+
+        return composed_transforms(sample)
+
+    def AugTrain(self, sample):
+        composed_transforms = transforms.Compose([
+            tr.Resize(self.args.resize),  # 先缩放要不然原图太大了进不去
+            tr.RandomFixScaleCropMy(crop_size=self.args.crop_size,fill=255),
+            tr.RandomHorizontalFlip(),
             # tr.RandomScaleCrop(base_size=self.args.base_size, crop_size=self.args.crop_size, fill=255), #先不要了
-            # tr.RandomGaussianBlur(),
-            # tr.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)), #根据自己的数据集来要不
+            tr.RandomGaussianBlur(),
             tr.Normalize_simple(),
             tr.ToTensor()])
 
         return composed_transforms(sample)
-    #验证集数据增强
+    #
     def transform_val(self, sample):
-
         composed_transforms = transforms.Compose([
-            tr.Resize((512, 256)),
-            # tr.FixScaleCrop(crop_size=self.args.crop_size),
-            # tr.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+            tr.Resize(self.args.resize),
             tr.Normalize_simple(),
             tr.ToTensor()])
-
         return composed_transforms(sample)
-    #测试集数据增强
+    #测试集
     def transform_ts(self, sample):
-
         composed_transforms = transforms.Compose([
-            tr.Resize((512,256)),
-            # tr.FixedResize(size=self.args.crop_size),
-            # tr.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+            tr.Resize(self.args.resize),
             tr.Normalize_simple(),
             tr.ToTensor()])
 

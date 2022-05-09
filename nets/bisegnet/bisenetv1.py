@@ -152,6 +152,7 @@ class ContextPath(nn.Module):
         return feat16_up, feat32_up # x8, x16
 
     def init_weight(self):
+        print("部分权重已经初始化")
         for ly in self.children():
             if isinstance(ly, nn.Conv2d):
                 nn.init.kaiming_normal_(ly.weight, a=1)
@@ -296,6 +297,7 @@ class BiSeNetV1(nn.Module):
             raise NotImplementedError
 
     def init_weight(self):
+
         for ly in self.children():
             if isinstance(ly, nn.Conv2d):
                 nn.init.kaiming_normal_(ly.weight, a=1)
@@ -314,14 +316,16 @@ class BiSeNetV1(nn.Module):
         return wd_params, nowd_params, lr_mul_wd_params, lr_mul_nowd_params
 
 
-if __name__ == "__main__":
-    net = BiSeNetV1(19)
-    net.cuda()
-    net.eval()
-    in_ten = torch.randn(1, 3, 512, 512).cuda()
-    out, out16, out32 = net(in_ten) #它这训练的时候还用了res的两个阶段的输出作为辅助训练，然后只在训练的时候
-    print(out.shape)
-    print(out16.shape)
-    print(out32.shape)
-
-    net.get_params()
+# if __name__ == "__main__":
+#     net = BiSeNetV1(19)
+#     net.cuda()
+#     net.eval()
+#     in_ten = torch.randn(1, 3, 512, 512).cuda()
+#     out, out16, out32 = net(in_ten) #它这训练的时候还用了res的两个阶段的输出作为辅助训练，然后只在训练的时候
+#     print(out.shape)
+#     print(out16.shape)
+#     print(out32.shape)
+#     print(net.aux_mode)
+#     net.aux_mode='eval'
+#     print(net.aux_mode)
+#     net.get_params()
