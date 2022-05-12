@@ -7,13 +7,13 @@ import time
 import cv2 as cv
 import numpy as np
 from PIL import Image
-
-from predict_model.model_predict import UnetP
+'''用于单张图片的测试看看效果'''
+from predict_model.model_predict import PredictModel
 if __name__ == "__main__":
     # -------------------------------------------------------------------------#
     #   如果想要修改对应种类的颜色，到__init__函数里修改self.colors即可
     # -------------------------------------------------------------------------#
-    unet = UnetP()
+    net = PredictModel()
     # ----------------------------------------------------------------------------------------------------------#
     #   mode用于指定测试的模式：
     #   'predict'表示单张图片预测，如果想对预测过程进行修改，如保存图片，截取对象等，可以先看下方详细的注释
@@ -69,7 +69,7 @@ if __name__ == "__main__":
                 print('Open Error! Try again!')
                 continue
             else:
-                r_image = unet.detect_image(image)
+                r_image = net.detect_image(image)
                 r_image.show()
 
     elif mode == "video":
@@ -95,7 +95,7 @@ if __name__ == "__main__":
             # 转变成Image
             frame = Image.fromarray(np.uint8(frame))
             # 进行检测
-            frame = np.array(unet.detect_image(frame))
+            frame = np.array(net.detect_image(frame))
             # RGBtoBGR满足opencv显示格式
             frame = cv.cvtColor(frame, cv.COLOR_RGB2BGR)
 
@@ -120,7 +120,7 @@ if __name__ == "__main__":
 
     elif mode == "fps":
         img = Image.open('img/street.jpg')
-        tact_time = unet.get_FPS(img, test_interval)
+        tact_time = net.get_FPS(img, test_interval)
         print(str(tact_time) + ' seconds, ' + str(1 / tact_time) + 'FPS, @batch_size 1')
 
     elif mode == "dir_predict":
@@ -134,7 +134,7 @@ if __name__ == "__main__":
 
                 image_path = os.path.join(dir_origin_path, img_name)
                 image = Image.open(image_path)
-                r_image = unet.detect_image(image)
+                r_image = net.detect_image(image)
                 if not os.path.exists(dir_save_path):
                     os.makedirs(dir_save_path)
                 img_name = img_name.split(".")[0]

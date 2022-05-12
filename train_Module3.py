@@ -9,11 +9,12 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from utils.evaluate_train import evaluatemiou,evaluateloss
-from nets.bisegnet.bisenetv1 import BiSeNetV1
+# from nets.bisegnet.bisenetv1 import BiSeNetV1
+from nets.CGNet.CGNet import  Context_Guided_Network
 # from nets.unet.unet_model import weights_init
 
 
-'''一个新模板'''
+'''以cgnet为模板。具体的到customer文件夹去写。'''
 dir_checkpoint = Path('../checkpoints/')
 '''这'''
 ##cityscpes 我直接改成20类了19类原来的+1类背景（原来255位置的）
@@ -28,7 +29,7 @@ def train_net(net,
              ):
     # 1. Create dataset
     #myself数据加载
-    from dataloaders.datasets import cityscapesmy
+    from dataloaders.datasets import cityscapesmy,pascal_customer
     parser2 = argparse.ArgumentParser()
     args2 = parser2.parse_args()
     args2.base_size = 256  # 这玩意干啥的
@@ -36,14 +37,16 @@ def train_net(net,
     args2.resize = (512, 512) #输入是w h(长和高)
 
 
-    cityscapes_train = cityscapesmy.CityscapesSegmentation(args2, split='train',isAugTrain=False)
+    # cityscapes_train = cityscapesmy.CityscapesSegmentation(args2, split='train',isAugTrain=False)
+    train_d = pascal_customer.VOCSegmentation(args2,split='train')
+    val_d = pascal_customer.VOCSegmentation(args2,split='val')
 
-    cityscapes_val = cityscapesmy.CityscapesSegmentation(args2, split='val')
-    n_val =cityscapes_val.__len__()
-    n_train =cityscapes_train.__len__()
+    # cityscapes_val = cityscapesmy.CityscapesSegmentation(args2, split='val')
+    n_val =val_d.__len__()
+    n_train =train_d.__len__()
 
-    train_loader = DataLoader(cityscapes_train, batch_size=batch_size, shuffle=True, num_workers=2,pin_memory=True)
-    val_loader=DataLoader(cityscapes_val,shuffle=False,num_workers=2,pin_memory=True,batch_size=batch_size)
+    train_loader = DataLoader(train_d, batch_size=batch_size, shuffle=True, num_workers=2,pin_memory=True)
+    val_loader=DataLoader(val_d,shuffle=False,num_workers=2,pin_memory=True,batch_size=batch_size)
 
 
 
@@ -72,8 +75,10 @@ def train_net(net,
 
 
     # 5. Begin training
-
+    epochs_score=[]#记录每个epoh的miou
+    best_miou=0.0#记录最好的那个
     for epoch in range(1, epochs+1):
+        current_miou=0.0
         total_train_loss      = 0
         total_val_loss = 0
         net.train()
@@ -85,8 +90,8 @@ def train_net(net,
                 true_masks = batch['label']
                 images = images.to(device=device, dtype=torch.float32)
                 true_masks = true_masks.to(device=device, dtype=torch.long)
-                out, out16, out32 = net(images)
-                loss = criterion(out,true_masks)+criterion(out16,true_masks)+criterion(out32,true_masks)
+                out= net(images)
+                loss = criterion(out,true_masks)
 
                 '''1.loss 2.梯度清零，3.反向传播。backward 4optomizer更新.'''
 
@@ -112,10 +117,13 @@ def train_net(net,
         # Evaluation round  #每个epoch评估一次
         isevalue = True
         if isevalue ==True:
-                val_score = evaluatemiou(net, val_loader, device, args.classes,ignor_index=ignoreindex)
-                val_loss = evaluateloss(net, val_loader, device,ignoreindex=ignoreindex)
+                val_score = evaluatemiou(net, val_loader, device, args.classes,ignoreindex=ignoreindex)
+                val_loss = evaluateloss(net, val_loader, device,numclass=args.classes,ignoreindex=ignoreindex)
                 logging.info('Validation miou score: {}'.format(val_score))
                 logging.info('Validation loss score: {}'.format(val_loss))
+                current_miou = val_score
+                epochs_score.append(val_score)
+
         print('Finish Validation')
         scheduler.step()  # 这个地方是按照迭代来调整学习率的
         #一整个训练验证结束后记录一下信息
@@ -130,13 +138,27 @@ def train_net(net,
                 'pred': wandb.Image(torch.softmax(out, dim=1).argmax(dim=1)[0].float().cpu()),
             },
             'epoch': epoch,
+            'best_epoch_index':epochs_score.index(max(epochs_score)) #记录验证集上最好的那个epoch
 
         })
-
+        #保存最好的miou和最新的
         if save_checkpoint:
+
             Path(dir_checkpoint).mkdir(parents=True, exist_ok=True)
-            torch.save(net.state_dict(), str(dir_checkpoint / 'checkpoint_epoch{}.pth'.format(epoch)))
-            logging.info(f'Checkpoint {epoch} saved!')
+            torch.save(net.state_dict(), str(dir_checkpoint / 'checkpoint_epoch{}_valloss{:.2f}.pth'.format(epoch,total_train_loss))) #保存当前的
+            torch.save(net.state_dict(),str(dir_checkpoint / 'last.pth'))#保存最新的
+            #保存最好的
+            if current_miou >= best_miou:
+                best_miou =current_miou
+                torch.save(net.state_dict(), str(dir_checkpoint / 'best.pth'.format(best_miou)))
+
+
+
+        #     logging.info(f'Checkpoint {epoch} saved!')
+        # if save_checkpoint:
+        #     Path(dir_checkpoint).mkdir(parents=True, exist_ok=True)
+        #     torch.save(net.state_dict(), str(dir_checkpoint / 'checkpoint_epoch{}_valloss{:.2f}.pth'.format(epoch,total_train_loss)))
+        #     logging.info(f'Checkpoint {epoch} saved!')
 
 
 def get_args():
@@ -149,7 +171,7 @@ def get_args():
     parser.add_argument('--ignore-index', '-i', type=int,dest='ignore_index', default=255, help='ignore index defult 100')  # 有没有预训练。。
 
     parser.add_argument('--bilinear', action='store_true', default=False, help='Use bilinear upsampling')
-    parser.add_argument('--classes', '-c', type=int, default=20, help='Number of classes')
+    parser.add_argument('--classes', '-c', type=int, default=2, help='Number of classes')
 
     return parser.parse_args()
 
@@ -158,11 +180,12 @@ if __name__ == '__main__':
     args = get_args()
 
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device=torch.device('cpu')
+    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     logging.info(f'Using device {device}')
 
 
-    net = BiSeNetV1(n_classes= 20 )
+    net = Context_Guided_Network(n_channels=3,classes=args.classes )
 
     # if args.load: #有预训练加载预训练
     #     net.load_state_dict(torch.load(args.load, map_location=device))

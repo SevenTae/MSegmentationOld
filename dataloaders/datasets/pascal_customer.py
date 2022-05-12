@@ -6,12 +6,12 @@ from torch.utils.data import Dataset
 from dataloaders.mypath import Path
 from torchvision import transforms
 from dataloaders import custom_transforms as tr
-
+'''voc数据集处理格式'''
 class VOCSegmentation(Dataset):
     """
     PascalVoc dataset
     """
-    NUM_CLASSES = 21
+    NUM_CLASSES = 2
 
     def __init__(self,
                  args,
@@ -47,7 +47,7 @@ class VOCSegmentation(Dataset):
                 lines = f.read().splitlines()
 
             for ii, line in enumerate(lines):
-                _image = os.path.join(self._image_dir, line + ".png")
+                _image = os.path.join(self._image_dir, line + ".jpg") #注意这个地方有的图片可能是jpg有的可能是png自己看着改
                 _cat = os.path.join(self._cat_dir, line + ".png")
                 assert os.path.isfile(_image)
                 assert os.path.isfile(_cat)
@@ -83,10 +83,8 @@ class VOCSegmentation(Dataset):
 
     def transform_tr(self, sample):
         composed_transforms = transforms.Compose([
-            tr.RandomHorizontalFlip(),
-            tr.RandomScaleCrop(base_size=self.args.base_size, crop_size=self.args.crop_size),
-            tr.RandomGaussianBlur(),
-            tr.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+            tr.Resize(self.args.resize),  # 先缩放要不然原图太大了进不去
+            tr.Normalize_simple(),
             tr.ToTensor()])
 
         return composed_transforms(sample)
@@ -94,10 +92,9 @@ class VOCSegmentation(Dataset):
     def transform_val(self, sample):
 
         composed_transforms = transforms.Compose([
-            tr.FixScaleCrop(crop_size=self.args.crop_size),
-            tr.Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225)),
+            tr.Resize(self.args.resize),
+            tr.Normalize_simple(),
             tr.ToTensor()])
-
         return composed_transforms(sample)
 
     def __str__(self):
@@ -114,10 +111,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
     args.base_size = 513
     args.crop_size = 513
+    args.resize=(512,512)
 
     voc_train = VOCSegmentation(args, split='train')
 
-    dataloader = DataLoader(voc_train, batch_size=5, shuffle=True, num_workers=0)
+    dataloader = DataLoader(voc_train, batch_size=1, shuffle=True, num_workers=0)
 
     for ii, sample in enumerate(dataloader):
         for jj in range(sample["image"].size()[0]):
@@ -126,8 +124,8 @@ if __name__ == '__main__':
             tmp = np.array(gt[jj]).astype(np.uint8)
             segmap = decode_segmap(tmp, dataset='pascal')
             img_tmp = np.transpose(img[jj], axes=[1, 2, 0])
-            img_tmp *= (0.229, 0.224, 0.225)
-            img_tmp += (0.485, 0.456, 0.406)
+            # img_tmp *= (0.229, 0.224, 0.225)
+            # img_tmp += (0.485, 0.456, 0.406)
             img_tmp *= 255.0
             img_tmp = img_tmp.astype(np.uint8)
             plt.figure()

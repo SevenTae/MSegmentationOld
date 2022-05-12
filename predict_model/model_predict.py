@@ -9,7 +9,8 @@ import torch.nn.functional as F
 from PIL import Image
 from torch import nn
 from utils.utils import cvtColor,preprocess_input
-from nets.unet.unet_model import  UNet
+from nets.CGNet.CGNet import Context_Guided_Network
+# from nets.unet.unet_model import  UNet
 
 
 # --------------------------------------------#
@@ -18,14 +19,14 @@ from nets.unet.unet_model import  UNet
 #   如果出现shape不匹配
 #   一定要注意训练时的model_path和num_classes数的修改
 # --------------------------------------------#
-class UnetP(object):
+class PredictModel(object):
     _defaults = {
         # -------------------------------------------------------------------#
         #   model_path指向logs文件夹下的权值文件
         #   训练好后logs文件夹下存在多个权值文件，选择验证集损失较低的即可。
         #   验证集损失较低不代表miou较高，仅代表该权值在验证集上泛化性能较好。
         # -------------------------------------------------------------------#
-        "model_path": r'F:\Q3\BaseUNet\Pytorch-UNet\checkpoints\checkpoint_epoch45.pth',
+        "model_path": r'D:\MSegmentation\checkpoints\checkpoint_epoch46.pth',
         # --------------------------------#
         #   所需要区分的类的个数+1
         # --------------------------------#
@@ -86,7 +87,7 @@ class UnetP(object):
     #   获得所有的分类
     # ---------------------------------------------------#
     def generate(self):
-        self.net = UNet(n_channels=3,n_classes=self.num_classes)
+        self.net = Context_Guided_Network(n_channels=3,classes=20)
 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.net.load_state_dict(torch.load(self.model_path, map_location=device))
