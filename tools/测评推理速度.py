@@ -2,15 +2,15 @@ import torch
 import time
 from torch import nn
 import torchvision.models as models
-
+from nets2.unet_dds.unet_model import UNet
 inputd = torch.randn([1,3,224,224],dtype=torch.float32)
-model = models.shufflenet_v2_x0_5(pretrained=False)
+model = UNet(n_channels=3,n_classes=20)
 cuda =True
-device=''
+
 if cuda:
-    device = 'cuda'
+    device = torch.device("cuda")
 else:
-    device ='cpu'
+    device = torch.device("cpu")
 
 
 input = inputd.to(device)

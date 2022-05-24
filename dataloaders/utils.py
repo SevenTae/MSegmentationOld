@@ -24,6 +24,9 @@ def decode_segmap(label_mask, dataset, plot=False):
     if dataset == 'pascal' or dataset == 'coco':
         n_classes = 21
         label_colours = get_pascal_labels()
+    elif dataset =='pascal_customer':
+        n_classes = 21
+        label_colours = get_pascal_customer_labels()
     elif dataset == 'cityscapes':
         n_classes = 19
         label_colours = get_cityscapes_labels()
@@ -103,6 +106,20 @@ def get_pascal_labels():
                        [64, 0, 128], [192, 0, 128], [64, 128, 128], [192, 128, 128],
                        [0, 64, 0], [128, 64, 0], [0, 192, 0], [128, 192, 0],
                        [0, 64, 128]])
+
+def get_pascal_customer_labels():
+    """
+    '''如果有对应颜色就换成对应颜色，如果没有对应颜色且类别数小于21的话就默认'''
+    Returns:
+        np.ndarray with dimensions (21, 3)
+    """
+    return np.asarray([[0, 0, 0], [128, 0, 0], [0, 128, 0], [128, 128, 0],
+                       [0, 0, 128], [128, 0, 128], [0, 128, 128], [128, 128, 128],
+                       [64, 0, 0], [192, 0, 0], [64, 128, 0], [192, 128, 0],
+                       [64, 0, 128], [192, 0, 128], [64, 128, 128], [192, 128, 128],
+                       [0, 64, 0], [128, 64, 0], [0, 192, 0], [128, 192, 0],
+                       [0, 64, 128]])
+
 
 def get_customer_labels():
     return np.asarray([[0, 0, 0], [255,255,255]])

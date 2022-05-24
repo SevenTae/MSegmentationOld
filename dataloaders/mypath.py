@@ -6,9 +6,11 @@ class Path(object):
         elif dataset == 'sbd':
             return '/path/to/datasets/benchmark_RELEASE/'  # folder that contains dataset/.
         elif dataset == 'cityscapes':
-            return 'D:/MSegmentation/data/cityscapes/'     # foler that contains leftImg8bit/
+            return 'F:/openmmmlab/mmsegmentation/data/cityscapes/'     # foler that contains leftImg8bit/
         elif dataset == 'coco':
             return '/path/to/datasets/coco/'
+        elif  dataset=='pascal_customer':
+             return  'F:/一些数据集/aeroscapes/data/VOCdevkit/VOC2012/'
         elif dataset=='customer':
             return 'D:/MSegmentation/data/customer/'
         else:

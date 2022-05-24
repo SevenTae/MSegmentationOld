@@ -7,16 +7,17 @@ from dataloaders.mypath import Path
 from torchvision import transforms
 from dataloaders import custom_transforms as tr
 '''voc数据集处理格式'''
-class VOCSegmentation(Dataset):
+class Customer_VOCSegmentation(Dataset):
     """
     PascalVoc dataset
     """
-    NUM_CLASSES = 2
+    NUM_CLASSES = 12
 
     def __init__(self,
                  args,
-                 base_dir=Path.db_root_dir('pascal'),
+                 base_dir=Path.db_root_dir('pascal_customer'),
                  split='train',
+                 isAug =False
                  ):
         """
         :param base_dir: path to VOCdevkit dataset directory
@@ -24,6 +25,7 @@ class VOCSegmentation(Dataset):
         :param transform: transform to apply
         """
         super().__init__()
+        self.isAug=isAug
         self._base_dir = base_dir
         self._image_dir = os.path.join(self._base_dir, 'JPEGImages')
         self._cat_dir = os.path.join(self._base_dir, 'SegmentationClass')
@@ -70,7 +72,10 @@ class VOCSegmentation(Dataset):
 
         for split in self.split:
             if split == "train":
-                return self.transform_tr(sample)
+                if self.isAug: #训练的时候使用数据增强验证的时候不需要
+                    return self.AugTrain(sample)
+                else:
+                   return self.transform_tr(sample)
             elif split == 'val':
                 return self.transform_val(sample)
 
@@ -81,6 +86,7 @@ class VOCSegmentation(Dataset):
 
         return _img, _target
 
+
     def transform_tr(self, sample):
         composed_transforms = transforms.Compose([
             tr.Resize(self.args.resize),  # 先缩放要不然原图太大了进不去
@@ -89,8 +95,17 @@ class VOCSegmentation(Dataset):
 
         return composed_transforms(sample)
 
-    def transform_val(self, sample):
+    def AugTrain(self, sample):
+        composed_transforms = transforms.Compose([
+            tr.Resize(self.args.resize),  # 先缩放要不然原图太大了进不去
+            tr.RandomFixScaleCropMy(crop_size=self.args.crop_size, fill=255),
+            tr.RandomHorizontalFlip(),
+            tr.RandomGaussianBlur(),
+            tr.Normalize_simple(),
+            tr.ToTensor()])
+        return composed_transforms(sample)
 
+    def transform_val(self, sample):
         composed_transforms = transforms.Compose([
             tr.Resize(self.args.resize),
             tr.Normalize_simple(),
@@ -113,7 +128,7 @@ if __name__ == '__main__':
     args.crop_size = 513
     args.resize=(512,512)
 
-    voc_train = VOCSegmentation(args, split='train')
+    voc_train = Customer_VOCSegmentation(args, split='train',isAug=True)
 
     dataloader = DataLoader(voc_train, batch_size=1, shuffle=True, num_workers=0)
 
@@ -122,10 +137,8 @@ if __name__ == '__main__':
             img = sample['image'].numpy()
             gt = sample['label'].numpy()
             tmp = np.array(gt[jj]).astype(np.uint8)
-            segmap = decode_segmap(tmp, dataset='pascal')
+            segmap = decode_segmap(tmp, dataset='pascal_customer')
             img_tmp = np.transpose(img[jj], axes=[1, 2, 0])
-            # img_tmp *= (0.229, 0.224, 0.225)
-            # img_tmp += (0.485, 0.456, 0.406)
             img_tmp *= 255.0
             img_tmp = img_tmp.astype(np.uint8)
             plt.figure()

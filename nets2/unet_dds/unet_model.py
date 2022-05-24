@@ -1,8 +1,13 @@
 """ Full assembly of the parts to form the complete network """
 
-from nets.unet_improve2.unet_parts import *
+from nets2.unet_dds.unet_part import *
+from torch import  nn
 import torch
 
+'''主干的五个double卷积
+第一个不动：
+其余的换成Dconv3*3br + 1*1Gconvbr
+'''
 class UNet(nn.Module):
     def __init__(self, n_channels, n_classes, bilinear=False):
         super(UNet, self).__init__()
@@ -16,8 +21,6 @@ class UNet(nn.Module):
         self.down3 = Down(256, 512)
         factor = 2 if bilinear else 1#如果用一般的双线性插值的话就是2 用转置卷积的话就是1
         self.down4 = Down(512, 1024 // factor)
-
-        # self.attention = SEAttention(channel=1024)
         self.up1 = Up(1024, 512 // factor, bilinear)
         self.up2 = Up(512, 256 // factor, bilinear)
         self.up3 = Up(256, 128 // factor, bilinear)
@@ -30,7 +33,6 @@ class UNet(nn.Module):
         x3 = self.down2(x2)
         x4 = self.down3(x3)
         x5 = self.down4(x4)
-        # x5 = self.attention(x5)
         x = self.up1(x5, x4)
         x = self.up2(x, x3)
         x = self.up3(x, x2)
@@ -61,9 +63,3 @@ def weights_init(net, init_type='normal', init_gain=0.02):
     print('initialize network with %s type' % init_type)
     net.apply(init_func)
 
-#
-# inpu = torch.randn(1,3,512,512)
-# m  = UNet(n_channels=3,n_classes=19)
-#
-# out= m(inpu)
-# print(out.shape)

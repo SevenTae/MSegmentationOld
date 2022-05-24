@@ -88,7 +88,7 @@ def evaluatemiou(net, dataloader, device, num_classes=20,ignoreindex=100):
     # Fixes a potential division by zero error
     if num_val_batches == 0:
         return miou_score
-    print("miou:", miou_score / num_val_batches)
+    # print("miou:", miou_score / num_val_batches)
     return miou_score / num_val_batches  # 然后再区batch的平均
 
 
@@ -124,7 +124,7 @@ def evaluateloss(net, dataloader, device,numclass=20, ignoreindex=100):
     # Fixes a potential division by zero error
     if num_val_batches == 0:
         return val_loss
-    print("valloss(total val):", val_loss / num_val_batches)
+    # print("valloss(total val):", val_loss / num_val_batches)
     return val_loss / num_val_batches  # 然后再区batch的平均
 
 

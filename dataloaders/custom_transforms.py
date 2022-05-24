@@ -6,7 +6,7 @@ import torchvision.transforms as transforms
 from PIL import Image, ImageOps, ImageFilter
 
 
-class Normalize(object):  #归一化处理
+class Normalize(object):  #归一化处理 根据数据集的均值和方差归一化
     """Normalize a tensor image with mean and standard deviation.
     Args:
         mean (tuple): means for each channel.
@@ -29,7 +29,7 @@ class Normalize(object):  #归一化处理
                 'label': mask}
 
 
-class Normalize_simple(object):  #归一化处理
+class Normalize_simple(object):  #简单归一化处理
     """Normalize a tensor image with/255
     Args:
 
@@ -158,7 +158,7 @@ class RandomCropResize(object):
 
 
 
-#随机尺度裁剪
+#随机尺度裁剪  这个最后出来是cropsize 没有填充成原来的大小 貌似分割可以真的用多尺度训练，因为不影响
 class RandomScaleCrop(object):
     def __init__(self, base_size, crop_size, fill=0):
         self.base_size = base_size #这个basesize是干啥的
