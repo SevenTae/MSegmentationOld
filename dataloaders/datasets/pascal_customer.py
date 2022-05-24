@@ -98,6 +98,7 @@ class Customer_VOCSegmentation(Dataset):
     def AugTrain(self, sample):
         composed_transforms = transforms.Compose([
             tr.Resize(self.args.resize),  # 先缩放要不然原图太大了进不去
+            tr.RandomScaleCrop(base_size=self.args.base_size,crop_size=self.args.crop_size,fill=255),
             tr.RandomFixScaleCropMy(crop_size=self.args.crop_size, fill=255),
             tr.RandomHorizontalFlip(),
             tr.RandomGaussianBlur(),
@@ -124,8 +125,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     args = parser.parse_args()
-    args.base_size = 513
-    args.crop_size = 513
+    args.base_size = 512
+    args.crop_size = 256
     args.resize=(512,512)
 
     voc_train = Customer_VOCSegmentation(args, split='train',isAug=True)

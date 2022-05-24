@@ -11,7 +11,6 @@ from torchsummary import summary
 import torch
 from torch import  nn
 from nets.unet.unet_model import UNet
-from nets.unet_improve3.shuffnet_unet import shuff_UNet
 import torch
 from torchsummary import summary
 from thop import profile

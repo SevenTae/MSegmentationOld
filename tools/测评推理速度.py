@@ -7,6 +7,9 @@ inputd = torch.randn([1,3,224,224],dtype=torch.float32)
 model = UNet(n_channels=3,n_classes=20)
 cuda =True
 
+'''废了废了 待完善'''
+
+
 if cuda:
     device = torch.device("cuda")
 else:

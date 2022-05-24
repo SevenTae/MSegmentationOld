@@ -15,6 +15,8 @@ dir_img = Path('./data/imgs/')
 dir_mask = Path('./data/masks/')
 dir_checkpoint = Path('./checkpoints/')
 
+'''废了的版本'''
+
 ##cityscpes 我直接改成20类了19类原来的+1类背景（原来255位置的）
 def train_net(net,
               device,

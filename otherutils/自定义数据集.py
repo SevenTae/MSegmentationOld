@@ -5,6 +5,10 @@ import operator
 import  matplotlib.pyplot as plt
 import os
 import shutil
+
+
+
+'''没用的。。。练手的东西'''
 #标记为建筑物、道路和背景的像素由 RGB 颜色 [255,0,0]、[0,0,255] 和 [255,255,255] 表示。
 
 #先把原来的数据集处理一下吧...

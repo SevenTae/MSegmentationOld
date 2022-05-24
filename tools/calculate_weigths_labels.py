@@ -5,7 +5,7 @@ from dataloaders.mypath import Path
 
 '''
 cr：http://t.csdn.cn/C9pWg
-计算类别权重，前提是你的数据个是是example的格式
+计算类别权重，前提是你的数据个是example的格式
 '''
 def calculate_weigths_labels( dataloader, num_classes):
     # Create an instance from the data loader

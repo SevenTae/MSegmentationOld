@@ -13,8 +13,9 @@ from utils.evaluate_train import evaluatemiou,evaluateloss
 from nets.CGNet.CGNet import  Context_Guided_Network
 # from nets.unet.unet_model import weights_init
 
+'''废了的版本'''
 
-'''以cgnet为模板。具体的到customer文件夹去写。'''
+
 dir_checkpoint = Path('../checkpoints/')
 '''这'''
 ##cityscpes 我直接改成20类了19类原来的+1类背景（原来255位置的）
