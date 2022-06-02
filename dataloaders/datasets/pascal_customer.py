@@ -11,7 +11,7 @@ class Customer_VOCSegmentation(Dataset):
     """
     PascalVoc dataset
     """
-    NUM_CLASSES = 12
+    NUM_CLASSES = 6
 
     def __init__(self,
                  args,
@@ -78,6 +78,8 @@ class Customer_VOCSegmentation(Dataset):
                    return self.transform_tr(sample)
             elif split == 'val':
                 return self.transform_val(sample)
+            elif split =='test':
+                return self.transform_val(sample)
 
 
     def _make_img_gt_point_pair(self, index):
@@ -98,11 +100,12 @@ class Customer_VOCSegmentation(Dataset):
     def AugTrain(self, sample):
         composed_transforms = transforms.Compose([
             tr.Resize(self.args.resize),  # 先缩放要不然原图太大了进不去
-            tr.RandomScaleCrop(base_size=self.args.base_size,crop_size=self.args.crop_size,fill=255),
-            tr.RandomFixScaleCropMy(crop_size=self.args.crop_size, fill=255),
+            # tr.RandomScaleCrop(base_size=self.args.base_size,crop_size=self.args.crop_size,fill=255),
+            # tr.RandomFixScaleCropMy(crop_size=self.args.crop_size, fill=255),
             tr.RandomHorizontalFlip(),
             tr.RandomGaussianBlur(),
             tr.Normalize_simple(),
+            # tr.Normalize(mean=(0.434, 0.502, 0.452), std=(0.168, 0.146, 0.182)),
             tr.ToTensor()])
         return composed_transforms(sample)
 
@@ -110,6 +113,7 @@ class Customer_VOCSegmentation(Dataset):
         composed_transforms = transforms.Compose([
             tr.Resize(self.args.resize),
             tr.Normalize_simple(),
+            # tr.Normalize(mean=(0.434, 0.502, 0.452), std=(0.168, 0.146, 0.182)),
             tr.ToTensor()])
         return composed_transforms(sample)
 
@@ -127,16 +131,18 @@ if __name__ == '__main__':
     args = parser.parse_args()
     args.base_size = 512
     args.crop_size = 256
-    args.resize=(512,512)
+    args.resize=(256,256)
 
-    voc_train = Customer_VOCSegmentation(args, split='train',isAug=True)
+    voc_train = Customer_VOCSegmentation(args, split='test',isAug=False)
 
-    dataloader = DataLoader(voc_train, batch_size=1, shuffle=True, num_workers=0)
+    dataloader = DataLoader(voc_train, batch_size=1, shuffle=False, num_workers=0)
 
     for ii, sample in enumerate(dataloader):
         for jj in range(sample["image"].size()[0]):
             img = sample['image'].numpy()
             gt = sample['label'].numpy()
+            gt=gt-1
+            print(gt)
             tmp = np.array(gt[jj]).astype(np.uint8)
             segmap = decode_segmap(tmp, dataset='pascal_customer')
             img_tmp = np.transpose(img[jj], axes=[1, 2, 0])

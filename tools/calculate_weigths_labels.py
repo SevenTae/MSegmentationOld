@@ -16,6 +16,7 @@ def calculate_weigths_labels( dataloader, num_classes):
     for sample in tqdm_batch:
         y = sample['label']
         y = y.detach().cpu().numpy()
+        y=y-1 #这个地方是有时候标签可能从1开始
         mask = (y >= 0) & (y < num_classes)
         labels = y[mask].astype(np.uint8)
         count_l = np.bincount(labels, minlength=num_classes)
@@ -33,19 +34,20 @@ def calculate_weigths_labels( dataloader, num_classes):
     return ret
 
 #EXample
-# from torch.utils.data import DataLoader
-# import matplotlib.pyplot as plt
-# import argparse
-# parser = argparse.ArgumentParser()
+from torch.utils.data import DataLoader
+import matplotlib.pyplot as plt
+import argparse
+parser = argparse.ArgumentParser()
 # from dataloaders.datasets.customer import CustomerSegmentation
-# args = parser.parse_args()
+from dataloaders.datasets .pascal_customer import Customer_VOCSegmentation
+args = parser.parse_args()
 # args.base_size = 512#这玩意干啥的
 # args.crop_size = 512
-# args.resize=(999,960)
-#
-# customer_train = CustomerSegmentation(args, split='train')
-# print(len(customer_train))
-# dataloader = DataLoader(customer_train, batch_size=1, shuffle=False)
-# num_classes = 2
-# re = calculate_weigths_labels(dataloader,num_classes)
-# print(re)
+args.resize=(256,256)
+
+customer_train = Customer_VOCSegmentation(args, split='train',isAug=False)
+print(len(customer_train))
+dataloader = DataLoader(customer_train, batch_size=1, shuffle=False)
+num_classes = 6
+re = calculate_weigths_labels(dataloader,num_classes)
+print(re)

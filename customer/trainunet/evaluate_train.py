@@ -57,6 +57,7 @@ def evaluatemiou(net, dataloader, device, num_classes=20,ignoreindex=100):
     for batch in tqdm(dataloader, total=num_val_batches, desc='Validation miou round', unit='batch',
                       leave=False):  # 迭代玩所有的验证集累积所有batch的miou 最后除以验证集的batch的长度
         image, mask_true = batch['image'], batch['label']
+        mask_true =mask_true-1 #这一条是
         # move images and labelss to correct device and type
         image = image.to(device=device, dtype=torch.float32)
         mask_true = mask_true.to(device=device, dtype=torch.long)
@@ -102,6 +103,7 @@ def evaluateloss(net, dataloader, device,numclass=20, ignoreindex=100):
                       leave=False):  # 迭代完所有的验证集，输出整个验证集的loss
 
         image, mask_true = batch['image'], batch['label']
+        mask_true =mask_true-1 #
         # move images and labelss to correct device and type
         image = image.to(device=device, dtype=torch.float32)
         mask_true = mask_true.to(device=device, dtype=torch.long)

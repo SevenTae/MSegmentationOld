@@ -10,7 +10,7 @@ class Path(object):
         elif dataset == 'coco':
             return '/path/to/datasets/coco/'
         elif  dataset=='pascal_customer':
-             return  'F:/一些数据集/aeroscapes/data/VOCdevkit/VOC2012/'
+             return  'F:/一些数据集/WHDLD/data/VOCdevkit/VOC2012/'
         elif dataset=='customer':
             return 'D:/MSegmentation/data/customer/'
         else:

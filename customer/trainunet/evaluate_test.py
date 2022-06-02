@@ -1,38 +1,39 @@
 ##在测试集上进行评估miou 版本1 和验证集的计算miou一样
-#
-'''测试版本2 对应 train_last2加了断点训练的版本'''
+
 from torch import nn
 from utils.dice_score import multiclass_dice_coeff, dice_coeff
 from utils.miou import SegmentationMetric
 from  tqdm import  tqdm
-from utils.utils_metrics import evaluatemiou,evaluateiou
+
+
 from torch.utils.data import DataLoader
-from dataloaders.datasets import cityscapesmy,customer
+from dataloaders.datasets import cityscapesmy,customer,pascal_customer
 
 import argparse
 import torch
 from  tqdm import tqdm
 
 
-from nets.CGNet.CGNet import Context_Guided_Network
+from nets.unet.unet_model import UNet
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 #1.准备数据
 parser2 = argparse.ArgumentParser()
 args2 = parser2.parse_args()
 args2.base_size = 256  # 这玩意干啥的
 args2.crop_size = 256
-args2.resize = (512, 512)  #把它缩放成原图训练时候的大小
+args2.resize = (256, 256)  #把它缩放成原图训练时候的大小
 
 batch_size=4#测试的时候batch直接等于图片综述
-test = cityscapesmy.CityscapesSegmentation(args2, split='val')
+test = pascal_customer.Customer_VOCSegmentation(args2, split='test')
 test_loader=DataLoader(test,shuffle=False,pin_memory=True,batch_size=batch_size)
 n_test =test.__len__()
 #2.搭建网络
 
-model_path = r"F:\MSegmentation\checkpoints\checkpoint_epoch44.pth"
+model_path = r"F:\MSegmentation\customer\trainunet\checkpoints\best.pth"
 model_dict = torch.load(model_path)
-model= Context_Guided_Network(n_channels=3,classes=20)
+model= UNet(n_channels=3,n_classes=6)
 model.load_state_dict(model_dict['net'])
+print("权重加载")
 
 #3.评估
 
@@ -43,9 +44,10 @@ def evaluateiou(net, dataloader, device, num_classes=20,ignoreindex=100):
     iou_score=torch.zeros(num_classes)
 
     # iterate over the validation set
-    for batch in tqdm(dataloader, total=num_val_batches, desc='Validation miou round', unit='batch',
+    for batch in tqdm(dataloader, total=num_val_batches, desc='Validation iou round', unit='batch',
                       leave=False):  # 迭代玩所有的验证集累积所有batch的miou 最后除以验证集的batch的长度
         image, mask_true = batch['image'], batch['label']
+        mask_true = mask_true - 1  # 这一条是
         # move images and labelss to correct device and type
         image = image.to(device=device, dtype=torch.float32)
         mask_true = mask_true.to(device=device, dtype=torch.long)
@@ -89,6 +91,7 @@ def evaluatemiou(net, dataloader, device, num_classes=20,ignoreindex=100):
     for batch in tqdm(dataloader, total=num_val_batches, desc='Validation miou round', unit='batch',
                       leave=False):  # 迭代玩所有的验证集累积所有batch的miou 最后除以验证集的batch的长度
         image, mask_true = batch['image'], batch['label']
+        mask_true = mask_true - 1  # 这一条是
         # move images and labelss to correct device and type
         image = image.to(device=device, dtype=torch.float32)
         mask_true = mask_true.to(device=device, dtype=torch.long)
@@ -119,14 +122,14 @@ def evaluatemiou(net, dataloader, device, num_classes=20,ignoreindex=100):
     # Fixes a potential division by zero error
     if num_val_batches == 0:
         return miou_score
-    print("miou:", miou_score / num_val_batches)
+    # print("miou:", miou_score / num_val_batches)
     return miou_score / num_val_batches  # 然后再区batch的平均
 
 
 
 
-miou= evaluatemiou(model, test_loader, device,num_classes=20)
-iou = evaluateiou(model, test_loader, device,num_classes=20,)
+miou= evaluatemiou(model, test_loader, device,num_classes=6)
+iou = evaluateiou(model, test_loader, device,num_classes=6,)
 
 print("数据集总体的miou为：",miou)
 print("iou为：",iou)

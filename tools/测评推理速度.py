@@ -2,9 +2,25 @@ import torch
 import time
 from torch import nn
 import torchvision.models as models
-from nets2.unet_dds.unet_model import UNet
-inputd = torch.randn([1,3,224,224],dtype=torch.float32)
-model = UNet(n_channels=3,n_classes=20)
+from PIL import Image
+from nets.CGNet.CGNet import Context_Guided_Network
+import numpy as np
+from utils.utils import cvtColor,preprocess_input
+
+
+'''使用真正的图片'''
+img_true=True
+if img_true:
+
+    img_path =r"F:\MSegmentation\img\test_img.png"
+    img= Image.open(img_path)
+    input_shape=(1024,512)#w,h
+    img=img.resize(input_shape)
+    image_data = np.expand_dims(np.transpose(preprocess_input(np.array(img, np.float32)), (2, 0, 1)), 0)
+    inputd =  torch.from_numpy(image_data)
+else: #否则使用假的 随机生成的
+    inputd = torch.randn([1,3,512,512],dtype=torch.float32)
+model = Context_Guided_Network(n_channels=3,classes=19)
 cuda =True
 
 '''废了废了 待完善'''
@@ -14,7 +30,7 @@ if cuda:
     device = torch.device("cuda")
 else:
     device = torch.device("cpu")
-
+print(device)
 
 input = inputd.to(device)
 model = model.to(device)
@@ -27,13 +43,16 @@ model = model.to(device)
 # print("推理时间为:",tim1-time0)
 
 #批量推理
+ite=5000#推理多少次 ，理论上越多越好
 model.eval()
 tim3 = time.time()
 with torch.no_grad():
-    for i in range(1000):
+    for i in range(ite):
         out=model(input)
 tim4 = time.time()
-print("批量推理的时间:",tim4-tim3)
+Sing_Avg_time= (tim4-tim3)/ite
+print("平均的时间:",Sing_Avg_time)
+print("fps(@1batch):",1/Sing_Avg_time)
 
 '''
 cr:http://t.csdn.cn/0Pd3P

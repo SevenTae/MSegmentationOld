@@ -8,13 +8,13 @@ import random
 #
 #   当前该库将测试集当作验证集使用，不单独划分测试集
 # ----------------------------------------------------------------------#
-trainval_percent = 1
-train_percent = 0.7
+trainval_percent = 0.8
+train_percent = 0.8
 # -------------------------------------------------------#
 #   指向VOC数据集所在的文件夹
 #   默认指向根目录下的VOC数据集
 # -------------------------------------------------------#
-VOCdevkit_path = 'D:/MSegmentation/data/VOCdevkit/'
+VOCdevkit_path = 'F:/一些数据集/WHDLD/data/VOCdevkit/'
 
 if __name__ == "__main__":
     random.seed(0)
