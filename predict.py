@@ -21,7 +21,11 @@ if __name__ == "__main__":
     #   'fps'表示测试fps，使用的图片是img里面的street.jpg，详情查看下方注释。
     #   'dir_predict'表示遍历文件夹进行检测并保存。默认遍历img文件夹，保存img_out文件夹，详情查看下方注释。
     # ----------------------------------------------------------------------------------------------------------#
+<<<<<<< HEAD
     mode = "predict"
+=======
+    mode = "fps"
+>>>>>>> 8b6166e (大幅度更新)
     # ----------------------------------------------------------------------------------------------------------#
     #   video_path用于指定视频的路径，当video_path=0时表示检测摄像头
     #   想要检测视频，则设置如video_path = "xxx.mp4"即可，代表读取出根目录下的xxx.mp4文件。
@@ -38,7 +42,11 @@ if __name__ == "__main__":
     #   test_interval用于指定测量fps的时候，图片检测的次数
     #   理论上test_interval越大，fps越准确。
     # -------------------------------------------------------------------------#
+<<<<<<< HEAD
     test_interval = 100
+=======
+    test_interval = 2000
+>>>>>>> 8b6166e (大幅度更新)
     # -------------------------------------------------------------------------#
     #   dir_origin_path指定了用于检测的图片的文件夹路径
     #   dir_save_path指定了检测完图片的保存路径
@@ -51,7 +59,12 @@ if __name__ == "__main__":
         '''
         predict.py有几个注意点
         1、该代码无法直接进行批量预测，如果想要批量预测，可以利用os.listdir()遍历文件夹，利用Image.open打开图片文件进行预测。
+<<<<<<< HEAD
         具体流程可以参考get_miou_prediction.py，在get_miou_prediction.py即实现了遍历。
+=======
+        具体流程可以参考get_m 。
+        颇iuytre+iou_prediction.py，在get_miou_prediction.py即实现了遍历。
+>>>>>>> 8b6166e (大幅度更新)
         2、如果想要保存，利用r_image.save("img.jpg")即可保存。
         3、如果想要原图和分割图不混合，可以把blend参数设置成False。
         4、如果想根据mask获取对应的区域，可以参考detect_image函数中，利用预测结果绘图的部分，判断每一个像素点的种类，然后根据种类获取对应的部分。
@@ -119,9 +132,24 @@ if __name__ == "__main__":
         cv.destroyAllWindows()
 
     elif mode == "fps":
+<<<<<<< HEAD
         img = Image.open('img/street.jpg')
         tact_time = net.get_FPS(img, test_interval)
         print(str(tact_time) + ' seconds, ' + str(1 / tact_time) + 'FPS, @batch_size 1')
+=======
+        img = Image.open('img_fps/fpstest.jpg')
+        tact_time = net.get_FPS(img, test_interval)
+
+        result = str(round(tact_time,3) )+ ' seconds, ' + str(round(1 / tact_time,0)) + 'FPS, @batch_size 1'
+        print(str(tact_time) + ' seconds, ' + str(1 / tact_time) + 'FPS, @batch_size 1')
+        # 保存
+        filename = "对比试验"
+        with open(r"F:\MSegmentation\Test_log2\{}.txt".format(filename), mode='a', encoding='utf-8') as f:
+            f.write("每张图片推理{}次的速度:\n".format(test_interval))
+            f.write("{}\n".format(result))
+        f.close()
+        print("结果已经保存")
+>>>>>>> 8b6166e (大幅度更新)
 
     elif mode == "dir_predict":
         import os
@@ -137,10 +165,16 @@ if __name__ == "__main__":
                 r_image = net.detect_image(image)
                 if not os.path.exists(dir_save_path):
                     os.makedirs(dir_save_path)
+<<<<<<< HEAD
                 img_name = img_name.split(".")[0]
                 imgsave = os.path.join(dir_save_path, img_name + ".png")
                 print(imgsave)
                 cv.imwrite("{}".format(imgsave), r_image)
+=======
+
+                r_image.save(os.path.join(dir_save_path, img_name))
+
+>>>>>>> 8b6166e (大幅度更新)
 
 
     else:

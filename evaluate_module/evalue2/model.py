@@ -8,7 +8,11 @@ import torch.nn.functional as F
 from PIL import Image
 from torch import nn
 
+<<<<<<< HEAD
 from nets.unet.unet_model import UNet
+=======
+from netCompaire.unet import UNet
+>>>>>>> 8b6166e (大幅度更新)
 from evaluate_module.evalue2.utils import cvtColor, preprocess_input, resize_imagenormal,show_config
 
 
@@ -25,7 +29,11 @@ class Model_test(object):
         #   训练好后logs文件夹下存在多个权值文件，选择验证集损失较低的即可。
         #   验证集损失较低不代表miou较高，仅代表该权值在验证集上泛化性能较好。
         #-------------------------------------------------------------------#
+<<<<<<< HEAD
         "model_path"    : 'F:/MSegmentation/customer/trainunet/checkpoints/best.pth',
+=======
+        "model_path"    : 'F:/MSegmentation/customer/trainunet/checkpoints0/best.pth',
+>>>>>>> 8b6166e (大幅度更新)
         #--------------------------------#
         #   所需要区分的类的个数+1
         #--------------------------------#
@@ -89,7 +97,11 @@ class Model_test(object):
 
         device      = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         model_dict = torch.load(self.model_path,map_location=device)
+<<<<<<< HEAD
         self.net.load_state_dict(model_dict['net'])
+=======
+        self.net.load_state_dict(model_dict['nets'])
+>>>>>>> 8b6166e (大幅度更新)
         self.net    = self.net.eval()
         print('{} model, and classes loaded.'.format(self.model_path))
         if not onnx:

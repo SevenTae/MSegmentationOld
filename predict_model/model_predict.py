@@ -9,9 +9,13 @@ import torch.nn.functional as F
 from PIL import Image
 from torch import nn
 from utils.utils import cvtColor,preprocess_input
+<<<<<<< HEAD
 from nets.CGNet.CGNet import Context_Guided_Network
 # from nets.unet.unet_model import  UNet
 
+=======
+from netCompaire.pspnet.pspnet import PSPNet
+>>>>>>> 8b6166e (大幅度更新)
 
 # --------------------------------------------#
 #   使用自己训练好的模型预测需要修改2个参数
@@ -26,6 +30,7 @@ class PredictModel(object):
         #   训练好后logs文件夹下存在多个权值文件，选择验证集损失较低的即可。
         #   验证集损失较低不代表miou较高，仅代表该权值在验证集上泛化性能较好。
         # -------------------------------------------------------------------#
+<<<<<<< HEAD
         "model_path": r'D:\MSegmentation\checkpoints\checkpoint_epoch46.pth',
         # --------------------------------#
         #   所需要区分的类的个数+1
@@ -39,6 +44,21 @@ class PredictModel(object):
         #   输入图片的大小
         # --------------------------------#
         "input_shape": [512, 256],
+=======
+        "model_path": r'F:\MSegmentation\customecompa\psp\checkpoints\best.pth',
+        # --------------------------------#
+        #   所需要区分的类的个数+1
+        # --------------------------------#
+        "num_classes": 6,
+        # --------------------------------#
+        #   所使用的的主干网络：vgg、resnet50
+        # --------------------------------#
+
+        # --------------------------------#
+        #   输入图片的大小
+        # --------------------------------#
+        "input_shape": [256, 256],
+>>>>>>> 8b6166e (大幅度更新)
         # --------------------------------#
         #   blend参数用于控制是否
         #   让识别结果和原图混合
@@ -66,6 +86,7 @@ class PredictModel(object):
         #            'traffic light', 'traffic sign', 'vegetation', 'terrain', 'sky',
         #            'person', 'rider', 'car', 'truck', 'bus', 'train', 'motorcycle',
         #            'bicycle')
+<<<<<<< HEAD
         self.CLASSES  = ('unlabelled', 'road', 'sidewalk', 'building', 'wall', 'fence',
                             'pole', 'traffic_light', 'traffic_sign', 'vegetation', 'terrain',
                             'sky', 'person', 'rider', 'car', 'truck', 'bus', 'train',
@@ -77,6 +98,22 @@ class PredictModel(object):
                    [255, 0, 0], [0, 0, 142], [0, 0, 70], [0, 60, 100],
                    [0, 80, 100], [0, 0, 230], [119, 11, 32]]
 
+=======
+        # self.CLASSES  = ('unlabelled', 'road', 'sidewalk', 'building', 'wall', 'fence',
+        #                     'pole', 'traffic_light', 'traffic_sign', 'vegetation', 'terrain',
+        #                     'sky', 'person', 'rider', 'car', 'truck', 'bus', 'train',
+        #                     'motorcycle', 'bicycle')
+
+        # self.PALETTE = [[0,0,0],[128, 64, 128], [244, 35, 232], [70, 70, 70], [102, 102, 156],
+        #            [190, 153, 153], [153, 153, 153], [250, 170, 30], [220, 220, 0],
+        #            [107, 142, 35], [152, 251, 152], [70, 130, 180], [220, 20, 60],
+        #            [255, 0, 0], [0, 0, 142], [0, 0, 70], [0, 60, 100],
+        #            [0, 80, 100], [0, 0, 230], [119, 11, 32]]
+
+        self.CLASSES  = ('building', 'road', 'pavement', 'vegetation', 'bare soil', 'water')
+        self.PALETTE = [[255, 0, 0], [255, 255, 0], [192, 192, 0], [0, 255, 0],
+                       [128, 128, 128], [0, 0, 255]]
+>>>>>>> 8b6166e (大幅度更新)
 
         # ---------------------------------------------------#
         #   获得模型
@@ -87,10 +124,18 @@ class PredictModel(object):
     #   获得所有的分类
     # ---------------------------------------------------#
     def generate(self):
+<<<<<<< HEAD
         self.net = Context_Guided_Network(n_channels=3,classes=20)
 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.net.load_state_dict(torch.load(self.model_path, map_location=device))
+=======
+        self.net =  PSPNet(num_classes=6,downsample_factor=16,aux_branch=False,pretrained=False)
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        model_dict = torch.load(self.model_path, map_location=device)
+        self.net.load_state_dict(model_dict['nets'])
+
+>>>>>>> 8b6166e (大幅度更新)
         self.net = self.net.eval()
         print('{} model, and classes loaded.'.format(self.model_path))
 
@@ -115,13 +160,21 @@ class PredictModel(object):
         orininal_w = np.array(image).shape[1]
         # ---------------------------------------------------------#
         #   给图像增加灰条，实现不失真的resize
+<<<<<<< HEAD
         #   也可以直接resize进行识别
+=======
+        #   也可以直接resize进行识别  这里是直接resize
+>>>>>>> 8b6166e (大幅度更新)
         # ---------------------------------------------------------#
         image=image.resize((self.input_shape[0],self.input_shape[1]), Image.BICUBIC)
         # ---------------------------------------------------------#
         #   添加上batch_size维度
         # ---------------------------------------------------------#
+<<<<<<< HEAD
         #测试图片归一化，按照你你数据集的归一化方法归一化
+=======
+        #测试图片归一化，如果有你自己数据集的均值和方差就可以使用他们
+>>>>>>> 8b6166e (大幅度更新)
         # if mean_std:
         # else:
         image_data = np.expand_dims(np.transpose(preprocess_input(np.array(image, np.float32)), (2, 0, 1)), 0)
@@ -217,6 +270,77 @@ class PredictModel(object):
         image = Image.fromarray(np.uint8(pr))
         return image
 
+<<<<<<< HEAD
+=======
+    def get_FPS(self, image, test_interval):
+        # ---------------------------------------------------------#
+        #   在这里将图像转换成RGB图像，防止灰度图在预测时报错。
+        #   代码仅仅支持RGB图像的预测，所有其它类型的图像都会转化成RGB
+        # ---------------------------------------------------------#
+        orininal_h = np.array(image).shape[0]
+        orininal_w = np.array(image).shape[1]
+        image = cvtColor(image)
+        # ---------------------------------------------------------#
+        #
+        #   也可以直接resize进行识别
+        # ---------------------------------------------------------#
+        image=image.resize((self.input_shape[0],self.input_shape[1]), Image.BICUBIC)
+        # ---------------------------------------------------------#
+        #   添加上batch_size维度
+        # ---------------------------------------------------------#
+        image_data = np.expand_dims(np.transpose(preprocess_input(np.array(image, np.float32)), (2, 0, 1)), 0)
+
+        with torch.no_grad():
+            images = torch.from_numpy(image_data)
+            if self.cuda:
+                print(self.cuda)
+                images = images.cuda()
+
+            # ---------------------------------------------------#
+            #   图片传入网络进行预测
+            # ---------------------------------------------------#
+            pr = self.net(images)[0]
+            # ---------------------------------------------------#
+            #   取出每一个像素点的种类
+            # ---------------------------------------------------#
+            pr = F.softmax(pr.permute(1, 2, 0), dim=-1).cpu().numpy().argmax(axis=-1)
+
+        #上边这个算是对gpu进行了一个热身运动？
+
+        #热身完了开始正式？
+        t1 = time.time()
+        for _ in range(test_interval):
+            with torch.no_grad():
+                # ---------------------------------------------------#
+                #   图片传入网络进行预测
+                # ---------------------------------------------------#
+                pr = self.net(images)[0]
+                # ---------------------------------------------------#
+                #   取出每一个像素点的种类
+                # ---------------------------------------------------#
+                pr = F.softmax(pr.permute(1, 2, 0), dim=-1).cpu().numpy().argmax(axis=-1)
+                pr = pr.argmax(axis=-1)
+
+                pr = cv.resize(pr, (orininal_w, orininal_h), interpolation=cv.INTER_NEAREST)  # 使用最近邻
+
+
+        t2 = time.time()
+        tact_time = (t2 - t1) / test_interval
+        return tact_time
+
+
+
+
+
+
+
+
+
+
+
+    #-----------------------------------------------------------------------------------
+
+>>>>>>> 8b6166e (大幅度更新)
     #
     # def get_FPS(self, image, test_interval):
     #     # ---------------------------------------------------------#
@@ -242,7 +366,11 @@ class PredictModel(object):
     #         # ---------------------------------------------------#
     #         #   图片传入网络进行预测
     #         # ---------------------------------------------------#
+<<<<<<< HEAD
     #         pr = self.net(images)[0]
+=======
+    #         pr = self.nets(images)[0]
+>>>>>>> 8b6166e (大幅度更新)
     #         # ---------------------------------------------------#
     #         #   取出每一个像素点的种类
     #         # ---------------------------------------------------#
@@ -259,7 +387,11 @@ class PredictModel(object):
     #             # ---------------------------------------------------#
     #             #   图片传入网络进行预测
     #             # ---------------------------------------------------#
+<<<<<<< HEAD
     #             pr = self.net(images)[0]
+=======
+    #             pr = self.nets(images)[0]
+>>>>>>> 8b6166e (大幅度更新)
     #             # ---------------------------------------------------#
     #             #   取出每一个像素点的种类
     #             # ---------------------------------------------------#
@@ -299,7 +431,11 @@ class PredictModel(object):
     #         # ---------------------------------------------------#
     #         #   图片传入网络进行预测
     #         # ---------------------------------------------------#
+<<<<<<< HEAD
     #         pr = self.net(images)[0]
+=======
+    #         pr = self.nets(images)[0]
+>>>>>>> 8b6166e (大幅度更新)
     #         # ---------------------------------------------------#
     #         #   取出每一个像素点的种类
     #         # ---------------------------------------------------#

@@ -6,6 +6,7 @@
 
 '''
 import torch
+<<<<<<< HEAD
 import torch
 from torchsummary import summary
 import torch
@@ -13,6 +14,8 @@ from torch import  nn
 from nets.unet.unet_model import UNet
 import torch
 from torchsummary import summary
+=======
+>>>>>>> 8b6166e (大幅度更新)
 from thop import profile
 
 '''计算网络的参数量和计算量'''

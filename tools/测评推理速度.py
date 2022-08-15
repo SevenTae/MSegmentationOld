@@ -1,11 +1,21 @@
 import torch
 import time
+<<<<<<< HEAD
 from torch import nn
 import torchvision.models as models
 from PIL import Image
 from nets.CGNet.CGNet import Context_Guided_Network
 import numpy as np
 from utils.utils import cvtColor,preprocess_input
+=======
+from PIL import Image
+from netCompaire.CGNet.CGNet import Context_Guided_Network
+import numpy as np
+from utils.utils import preprocess_input
+####这个废了废了！！
+
+
+>>>>>>> 8b6166e (大幅度更新)
 
 
 '''使用真正的图片'''
@@ -57,7 +67,11 @@ print("fps(@1batch):",1/Sing_Avg_time)
 '''
 cr:http://t.csdn.cn/0Pd3P
 需要克服GPU异步执行和GPU预热两个问题，
+<<<<<<< HEAD
 下面例子使用 Efficient-net-b0，在进行任何时间测量之前，
+=======
+下面例子使用 Efficient-nets-b0，在进行任何时间测量之前，
+>>>>>>> 8b6166e (大幅度更新)
 我们通过网络运行一些虚拟示例来进行“GPU 预热”。
 这将自动初始化 GPU 并防止它在我们测量时间时进入省电模式。
 接下来，我们使用 tr.cuda.event 来测量 GPU 上的时间。

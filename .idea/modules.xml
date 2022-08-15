@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+<<<<<<< HEAD
       <module fileurl="file://$PROJECT_DIR$/.idea/MSegmentation.iml" filepath="$PROJECT_DIR$/.idea/MSegmentation.iml" />
+=======
+      <module fileurl="file://$PROJECT_DIR$/.idea/MyReSegmet.iml" filepath="$PROJECT_DIR$/.idea/MyReSegmet.iml" />
+>>>>>>> 8b6166e (大幅度更新)
     </modules>
   </component>
 </project>

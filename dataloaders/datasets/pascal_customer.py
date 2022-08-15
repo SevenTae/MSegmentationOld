@@ -3,7 +3,11 @@ import os
 from PIL import Image
 import numpy as np
 from torch.utils.data import Dataset
+<<<<<<< HEAD
 from dataloaders.mypath import Path
+=======
+from dataloaders.mypath import Path  #注意一下这个path
+>>>>>>> 8b6166e (大幅度更新)
 from torchvision import transforms
 from dataloaders import custom_transforms as tr
 '''voc数据集处理格式'''
@@ -50,7 +54,11 @@ class Customer_VOCSegmentation(Dataset):
 
             for ii, line in enumerate(lines):
                 _image = os.path.join(self._image_dir, line + ".jpg") #注意这个地方有的图片可能是jpg有的可能是png自己看着改
+<<<<<<< HEAD
                 _cat = os.path.join(self._cat_dir, line + ".png")
+=======
+                _cat = os.path.join(self._cat_dir, line + ".png")  #注意格式
+>>>>>>> 8b6166e (大幅度更新)
                 assert os.path.isfile(_image)
                 assert os.path.isfile(_cat)
                 self.im_ids.append(line)
@@ -92,7 +100,12 @@ class Customer_VOCSegmentation(Dataset):
     def transform_tr(self, sample):
         composed_transforms = transforms.Compose([
             tr.Resize(self.args.resize),  # 先缩放要不然原图太大了进不去
+<<<<<<< HEAD
             tr.Normalize_simple(),
+=======
+            tr.Normalize(mean=(0.231, 0.217, 0.22), std=(0.104, 0.086, 0.085)),#针对whdld数据集的
+            # tr.Normalize_simple(),
+>>>>>>> 8b6166e (大幅度更新)
             tr.ToTensor()])
 
         return composed_transforms(sample)
@@ -104,16 +117,27 @@ class Customer_VOCSegmentation(Dataset):
             # tr.RandomFixScaleCropMy(crop_size=self.args.crop_size, fill=255),
             tr.RandomHorizontalFlip(),
             tr.RandomGaussianBlur(),
+<<<<<<< HEAD
             tr.Normalize_simple(),
             # tr.Normalize(mean=(0.434, 0.502, 0.452), std=(0.168, 0.146, 0.182)),
+=======
+            # tr.Normalize_simple(),
+            tr.Normalize(mean=(0.231, 0.217, 0.22), std=(0.104, 0.086, 0.085)),  #ehdld数据集
+>>>>>>> 8b6166e (大幅度更新)
             tr.ToTensor()])
         return composed_transforms(sample)
 
     def transform_val(self, sample):
         composed_transforms = transforms.Compose([
+<<<<<<< HEAD
             tr.Resize(self.args.resize),
             tr.Normalize_simple(),
             # tr.Normalize(mean=(0.434, 0.502, 0.452), std=(0.168, 0.146, 0.182)),
+=======
+            tr.ResizeforValTest(self.args.resize),
+            # tr.Normalize_simple(),
+            tr.Normalize(mean=(0.231, 0.217, 0.22), std=(0.104, 0.086, 0.085)),
+>>>>>>> 8b6166e (大幅度更新)
             tr.ToTensor()])
         return composed_transforms(sample)
 

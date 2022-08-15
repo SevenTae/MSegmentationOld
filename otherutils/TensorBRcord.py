@@ -1,7 +1,11 @@
 from tensorboardX import SummaryWriter
 
+<<<<<<< HEAD
 from nets.unet.unet_model import UNet
 from nets.bisegnet.bisenetv1 import BiSeNetV1
+=======
+from netCompaire.bisegnet import BiSeNetV1
+>>>>>>> 8b6166e (大幅度更新)
 
 import torch
 writer = SummaryWriter("./logs")

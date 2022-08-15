@@ -1,11 +1,17 @@
 import hiddenlayer as h
 import torch
+<<<<<<< HEAD
 from nets.bisegnet.bisenetv1 import BiSeNetV1
 from  nets.bisegnet.bisenetv2 import BiSeNetV2
 
 # from nets.unet_improve1.unet_model import UNet
 from torch import nn
 import torch.nn.functional as F
+=======
+from netCompaire.bisegnet import BiSeNetV2
+
+# from nets.unet_improve1.unet_model import UNet
+>>>>>>> 8b6166e (大幅度更新)
 
 '''
 一个例子

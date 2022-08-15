@@ -33,7 +33,11 @@ if __name__ == '__main__':
 
     #注意这里的数据集是没有归一化的 ，所以出来的均值和方差都是很大的那个数
     from dataloaders.datasets.cal_md import Cal_md
+<<<<<<< HEAD
     dir_path =r"F:\一些数据集\aeroscapes\data\VOCdevkit\VOC2012\JPEGImages"
+=======
+    dir_path =r"F:\一些数据集\Tree\VOCdevkit\VOC2012\JPEGImages"
+>>>>>>> 8b6166e (大幅度更新)
     datasets=Cal_md(dir_path,)
     mean,std =getStat(datasets)
     mean_save3 = [round(x, 3) for x in mean]
@@ -45,7 +49,11 @@ if __name__ == '__main__':
     print(mean_255)
     print(std_255)
 
+<<<<<<< HEAD
     with open("均值和方差.txt",mode='w',encoding='utf-8') as f:
+=======
+    with open("均值和方差.txt",mode='a',encoding='utf-8') as f:
+>>>>>>> 8b6166e (大幅度更新)
         f.write("此数据集：\n")
         f.write("均值：{}\n".format(mean_255))
         f.write("方差：{}\n".format(std_255))

@@ -27,7 +27,11 @@ def evaluate(model, data_loader, device, num_classes):
 
 if __name__ == '__main__':
     #准备一个模型 准备一个dataloade
+<<<<<<< HEAD
     from nets.unet.unet_model import UNet
+=======
+    from netCompaire.unet import UNet
+>>>>>>> 8b6166e (大幅度更新)
     from dataloaders.datasets import  pascal_customer
     from torch.utils.data import DataLoader
 
@@ -45,12 +49,31 @@ if __name__ == '__main__':
     n_test = test.__len__()
     # 2.搭建网络
 
+<<<<<<< HEAD
     model_path = r"/customer/trainunet/checkpoints/best.pth"
     model_dict = torch.load(model_path)
     model = UNet(n_channels=3, n_classes=6)
     model.load_state_dict(model_dict['net'])
+=======
+    model_path = r"/customer/trainunet/checkpoints0/best.pth"
+    model_dict = torch.load(model_path)
+    model = UNet(n_channels=3, n_classes=6)
+    model.load_state_dict(model_dict['nets'])
+>>>>>>> 8b6166e (大幅度更新)
     print("权重加载")
 
     ev =evaluate(model,test_loader,device,num_classes=6)
     print("测试结果：")
+<<<<<<< HEAD
     print(ev)
+=======
+    print(ev)
+
+    filename = "原unet的测评指标"
+
+    with open(r"F:\MSegmentation\Test_log\{}.txt".format(filename), mode='w', encoding='utf-8') as f:
+        f.write("-------------------测试结果-------------------\n")
+        f.write("{}\n".format(ev))
+    f.close()
+    print("结果已经保存")
+>>>>>>> 8b6166e (大幅度更新)

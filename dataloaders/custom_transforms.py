@@ -1,9 +1,29 @@
+<<<<<<< HEAD
 import torch
 import random
 import numpy as np
 import torchvision.transforms as transforms
 #定义了一些数据增强的方法
 from PIL import Image, ImageOps, ImageFilter
+=======
+
+import numpy as np
+import torchvision.transforms as transforms
+#定义了一些数据增强的方法
+from PIL import Image, ImageOps, ImageFilter,ImageEnhance
+
+#一定要设置随机种子
+import  random
+import torch
+seed = 7
+random.seed(seed)
+np.random.seed(seed)
+torch.manual_seed(seed)
+torch.backends.cudnn.deterministic = True
+torch.backends.cudnn.benchmark = False
+
+
+>>>>>>> 8b6166e (大幅度更新)
 
 '''一些数据增强的方法'''
 class Normalize(object):  #归一化处理 根据数据集的均值和方差归一化
@@ -64,6 +84,27 @@ class Resize(object):
                 'label': mask}
 
 
+<<<<<<< HEAD
+=======
+
+class ResizeforValTest(object):  #注意测试miu的时候gt是打死都不能动的只能缩放预测图  #允许你缩放原图，因为可能因为显存不够盛不下  ！！但是gt打死不能动
+    '''太大了进不去'''
+    def __init__(self, resizeshape=(1024,512)):
+        self.resizeshape = resizeshape
+
+    def __call__(self, sample):
+        img = sample['image']
+        mask = sample['label']
+        img =img.resize(self.resizeshape,Image.BILINEAR) #原图用双线性插值
+        # mask = mask.resize(self.resizeshape, Image.NEAREST)#标签图用最近邻，要不然就乱了
+
+        return {'image': img,
+                'label': mask}
+
+
+
+
+>>>>>>> 8b6166e (大幅度更新)
 class ToTensor(object):
     """Convert ndarrays in sample to Tensors."""
 
@@ -95,6 +136,46 @@ class RandomHorizontalFlip(object):#这是真的随机翻转，有的翻转有�
                 'label': mask}
 
 
+<<<<<<< HEAD
+=======
+#随机色度增强
+class Enhance_Color(object):
+    def __call__(self, sample):
+        img = sample['image']
+        mask = sample['label']
+
+        enh_col = ImageEnhance.Color(img)
+        color= np.random.uniform(0.4,2.6) #返回a,b之间的随机浮点数,控制图像的增强程度。变量factor为1将返回原始图像的拷贝；factor值越小，颜色越少（亮度，对比度等），更多的价值。对变量facotr没有限制。
+        img_colored = enh_col.enhance(color)
+        return {'image': img_colored,
+                'label': mask}
+
+#随机对比度增强
+class Enhance_contrasted(object):
+    def __call__(self, sample):
+        img = sample['image']
+        mask = sample['label']
+
+        enh_con = ImageEnhance.Color(img)
+        contrast = np.random.uniform(0.6,1.6)
+        img_contrasted = enh_con.enhance(contrast)
+        return {'image': img_contrasted,
+                'label': mask}
+
+#随机锐度增强
+class Enhance_sharped(object):
+   def __call__(self, sample):
+     img = sample['image']
+     mask = sample['label']
+
+     enh_sha = ImageEnhance.Sharpness(img)
+     sharpness = np.random.uniform(0.4, 4)
+     image_sharped = enh_sha.enhance(sharpness)
+     return {'image': image_sharped,
+            'label': mask}
+
+
+>>>>>>> 8b6166e (大幅度更新)
 class RandomRotate(object):  #随机 随机旋转率旋转 有的旋转有的不旋转，转转率也不一样
     def __init__(self, degree):
         self.degree = degree
@@ -269,4 +350,10 @@ class FixedResize(object):#固定尺寸
         mask = mask.resize(self.size, Image.NEAREST)
 
         return {'image': img,
+<<<<<<< HEAD
                 'label': mask}
+=======
+                'label': mask}
+
+
+>>>>>>> 8b6166e (大幅度更新)
